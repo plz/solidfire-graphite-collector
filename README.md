@@ -1,5 +1,4 @@
 # solidfire-graphite-collector
--------------------------------
 
 Daemon to collect performance metrics from a SolidFire cluster and send 
 them to Graphite.
@@ -24,14 +23,13 @@ Required Libraries
 Libraries all available for installation with pip, instructions and dependancies 
 for each outlined in their respective webpages.
 
-+------------------------------------------------------------------+-----------+
 | Component                                                        | Version   |
-+==================================================================+===========+
-| `solidfire-sdk-python <https://github.com/solidfire/solidfire-sdk-python/>`__ | 1.1   |
-|     `Requests <http://docs.python-requests.org/en/master/>`__    | 2.12.1+   |
-| `graphyte <https://github.com/Jetsetter/graphyte/>`__            |           |
-| `python-daemon<https://pypi.python.org/pypi/python-daemon />`__  | 2.1.2     |
-+------------------------------------------------------------------+-----------+
+|------------------------------------------------------------------|-----------|
+| solidfire-sdk-python <https://github.com/solidfire/solidfire-sdk-python/> | 1.1   |
+| Requests <http://docs.python-requests.org/en/master/>            | 2.12.1+   |
+| graphyte <https://github.com/Jetsetter/graphyte/>                | ?          |
+| python-daemon<https://pypi.python.org/pypi/python-daemon />      | 2.1.2     |
+
 
 Usage
 -----
