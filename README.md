@@ -40,7 +40,6 @@ cluster to monitor.
 
     usage: python solidfire_graphite_collector.py [-h] [-s SOLIDFIRE] [-u USERNAME]
                                            [-p PASSWORD] [-g GRAPHITE] [-t PORT]
-                                           [-m METRICROOT]
 
       -h, --help            show this help message and exit
 
