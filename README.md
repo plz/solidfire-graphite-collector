@@ -69,6 +69,22 @@ To stop this script, simply kill the process.  A sample command to do so is show
     | xargs kill
 
 
+**launcher.py**
+---------------
+
+Helper script to use a configuration file to provide arguments for launching multiple 
+instances of solidfire_graphite_collector.py at once.
+
+Requires a configuration file (sgc.config) with one or more sections in the form:
+
+        [solidfire_array_hostname]
+        username : solidfire_user
+        password : solidfire_pass
+        graphite : graphite_server_hostname
+        port     : graphite_port
+
+Where graphite and port are optional.
+
 
 
 **License**
