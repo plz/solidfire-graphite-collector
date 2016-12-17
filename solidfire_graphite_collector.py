@@ -22,7 +22,7 @@ import time
 import graphyte
 import daemon
 from solidfire.factory import ElementFactory
-
+import solidfire.common
 
 def send_cluster_stats(sf_element_factory, prefix):
     """
@@ -215,16 +215,23 @@ args = parser.parse_args()
 # Run this script as a daemon
 with daemon.DaemonContext():
     graphyte.init(args.graphite, port=args.port, prefix=args.metricroot)
-    sfe = ElementFactory.create(args.solidfire, args.username, args.password)
-    sfe.timeout(600)
-    cluster_name = sfe.get_cluster_info().to_json()['clusterInfo']['name']
 
     # Loop only at 1 minute intervals from start time.
     starttime=time.time()
     while True:
-        send_cluster_stats(sfe, cluster_name)
-        send_cluster_capacity(sfe, cluster_name)
-        send_node_stats(sfe, cluster_name + '.node')
-        send_volume_stats(sfe, cluster_name)
-        send_drive_stats(sfe, cluster_name)
+        try:
+            sfe = ElementFactory.create(args.solidfire, args.username, args.password)
+            sfe.timeout(15)
+            cluster_name = sfe.get_cluster_info().to_json()['clusterInfo']['name']
+            send_cluster_stats(sfe, cluster_name)
+            send_cluster_capacity(sfe, cluster_name)
+            send_node_stats(sfe, cluster_name + '.node')
+            send_volume_stats(sfe, cluster_name)
+            send_drive_stats(sfe, cluster_name)
+        except solidfire.common.ApiServerError as e:
+            print "ApiServerError: " , str(e)
+        except Exception as e:
+            print "General Exception: " , str(e)
+
+        sfe = None
         time.sleep(60.0 - ((time.time() - starttime) % 60.0))
