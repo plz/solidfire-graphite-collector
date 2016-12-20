@@ -211,6 +211,8 @@ parser.add_argument('-g', '--graphite', default='localhost',
     help='hostname of Graphite server to send to. default localhost')
 parser.add_argument('-t', '--port', type=int, default=2003,
     help='port to send message to. default 2003')
+parser.add_argument('-m', '--metricroot', default='netapp.solidfire.cluster',
+    help='graphite metric root. default netapp.solidfire.cluster')
 args = parser.parse_args()
 
 # Run this script as a daemon
