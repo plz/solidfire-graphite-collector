@@ -7,7 +7,7 @@ them to Graphite.
 Current Release
 ---------------
 
-Version 1.0.3
+Version 1.0.4
 
 
 Description
@@ -58,6 +58,8 @@ cluster to monitor.
 
       -t PORT, --port PORT  port to send message to.  default 2003
 
+      -m METRICROOT, --metricroot METRICROOT  port to send message to.  default netapp.solidfire.cluster
+
 
 
 To have it automatically startup on server boot, make use of an rc.d script (or upstart) 
@@ -72,6 +74,11 @@ To stop this script, simply kill the process.  A sample command to do so is show
 **launcher.py**
 ---------------
 
+Current Release
+---------------
+
+Version 1.0.1
+
 Helper script to use a configuration file to provide arguments for launching multiple 
 instances of solidfire_graphite_collector.py at once.
 
@@ -82,6 +89,7 @@ Requires a configuration file (sgc.config) with one or more sections in the form
         password : solidfire_pass
         graphite : graphite_server_hostname
         port     : graphite_port
+        metricroot : netapp.solidfire.cluster
 
 Where graphite and port are optional.
 

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # solidfire_graphite_collector.py
 #
-# Version 1.0.3
+# Version 1.0.4
 # Author: Colin Bieberstein
 # Contributors: Pablo Luis Zorzoli
 #
