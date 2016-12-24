@@ -24,6 +24,7 @@ import graphyte
 import daemon
 from solidfire.factory import ElementFactory
 import solidfire.common
+import logging
 
 def send_cluster_stats(sf_element_factory, prefix):
     """
@@ -199,7 +200,7 @@ def to_num(metric):
     finally:
         return x
 
-
+# Parse commandline arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('-s', '--solidfire',
     help='hostname of SolidFire array from which metrics should be collected')
@@ -213,15 +214,25 @@ parser.add_argument('-t', '--port', type=int, default=2003,
     help='port to send message to. default 2003')
 parser.add_argument('-m', '--metricroot', default='netapp.solidfire.cluster',
     help='graphite metric root. default netapp.solidfire.cluster')
+parser.add_argument('-l', '--logfile', default='/tmp/solidfire-graphite-collector.log',
+    help='logfile. default: /tmp/solidfire-graphite-collector.log')
 args = parser.parse_args()
 
 # Run this script as a daemon
 with daemon.DaemonContext():
+    # Logger module configuration
+    if (args.logfile):
+        LOG = logging.getLogger('solidfire_graphite_collector.py')
+        logging.basicConfig(filename=args.logfile,level=logging.DEBUG)
+        LOG.warning("Starting Collector script as a daemon.  No console output possible.")
+
+    # Initialize graphyte sender
     graphyte.init(args.graphite, port=args.port, prefix=args.metricroot)
 
     # Loop only at 1 minute intervals from start time.
     starttime=time.time()
     while True:
+        LOG.info("Metrics Collection for array: {0}".format(args.solidfire))
         try:
             sfe = ElementFactory.create(args.solidfire, args.username, args.password)
             sfe.timeout(15)
@@ -232,9 +243,9 @@ with daemon.DaemonContext():
             send_volume_stats(sfe, cluster_name)
             send_drive_stats(sfe, cluster_name)
         except solidfire.common.ApiServerError as e:
-            print "ApiServerError: " , str(e)
+            LOG.warning("ApiServerError: {0}".format(str(e)))
         except Exception as e:
-            print "General Exception: " , str(e)
+            LOG.warning("General Exception: {0}".format(str(e)))
 
         sfe = None
         time.sleep(60.0 - ((time.time() - starttime) % 60.0))

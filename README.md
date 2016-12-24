@@ -26,8 +26,8 @@ Required Libraries
 | solidfire-sdk-python <https://github.com/solidfire/solidfire-sdk-python/> | 1.1   |
 | Requests <http://docs.python-requests.org/en/master/>            | 2.12.1+   |
 | graphyte <https://github.com/Jetsetter/graphyte/>                | 1.1       |
-| python-daemon<https://pypi.python.org/pypi/python-daemon/>       | 2.1.2     |
-
+| python-daemon <https://pypi.python.org/pypi/python-daemon/>      | 2.1.2     |
+| logging | 0.4.9.6 |
 
 
 Usage
@@ -60,6 +60,8 @@ cluster to monitor.
 
       -m METRICROOT, --metricroot METRICROOT  port to send message to.  default netapp.solidfire.cluster
 
+      -l LOGFILE, --logfile LOGFILE  if defined, execution will be logged to this file.
+
 
 
 To have it automatically startup on server boot, make use of an rc.d script (or upstart) 
@@ -81,6 +83,11 @@ Version 1.0.1
 
 Helper script to use a configuration file to provide arguments for launching multiple 
 instances of solidfire_graphite_collector.py at once.
+
+| Component                                                        | Version   |
+|------------------------------------------------------------------|-----------|
+| python3                                                          | 3.x       |
+| configparser | 3.5.0 |
 
 Requires a configuration file (sgc.config) with one or more sections in the form:
 
