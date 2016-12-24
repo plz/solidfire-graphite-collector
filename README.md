@@ -7,7 +7,7 @@ them to Graphite.
 Current Release
 ---------------
 
-Version 1.0.3
+Version 1.0.4
 
 
 Description
@@ -26,8 +26,8 @@ Required Libraries
 | solidfire-sdk-python <https://github.com/solidfire/solidfire-sdk-python/> | 1.1   |
 | Requests <http://docs.python-requests.org/en/master/>            | 2.12.1+   |
 | graphyte <https://github.com/Jetsetter/graphyte/>                | 1.1       |
-| python-daemon<https://pypi.python.org/pypi/python-daemon/>       | 2.1.2     |
-
+| python-daemon <https://pypi.python.org/pypi/python-daemon/>      | 2.1.2     |
+| logging | 0.4.9.6 |
 
 
 Usage
@@ -58,6 +58,10 @@ cluster to monitor.
 
       -t PORT, --port PORT  port to send message to.  default 2003
 
+      -m METRICROOT, --metricroot METRICROOT  port to send message to.  default netapp.solidfire.cluster
+
+      -l LOGFILE, --logfile LOGFILE  if defined, execution will be logged to this file.
+
 
 
 To have it automatically startup on server boot, make use of an rc.d script (or upstart) 
@@ -72,8 +76,18 @@ To stop this script, simply kill the process.  A sample command to do so is show
 **launcher.py**
 ---------------
 
+Current Release
+---------------
+
+Version 1.0.1
+
 Helper script to use a configuration file to provide arguments for launching multiple 
 instances of solidfire_graphite_collector.py at once.
+
+| Component                                                        | Version   |
+|------------------------------------------------------------------|-----------|
+| python3                                                          | 3.x       |
+| configparser | 3.5.0 |
 
 Requires a configuration file (sgc.config) with one or more sections in the form:
 
@@ -82,6 +96,7 @@ Requires a configuration file (sgc.config) with one or more sections in the form
         password : solidfire_pass
         graphite : graphite_server_hostname
         port     : graphite_port
+        metricroot : netapp.solidfire.cluster
 
 Where graphite and port are optional.
 
