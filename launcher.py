@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # launcher.py
 #
-# Version 1.0.
+# Version 1.0.1
 # Author: Colin Bieberstein
 #
 # Copyright &copy; 2016 NetApp, Inc. All Rights Reserved.
@@ -44,6 +44,9 @@ for arr in config.sections():
 
     if config.has_option(arr,'port'):
         argstring = argstring + " -t " + config.get(arr,'port')
+
+    if config.has_option(arr,'metricroot'):
+        argstring = argstring + " -m " + config.get(arr,'metricroot')
 
     subprocess.run(["python", "solidfire_graphite_collector.py", argstring]) 
 
