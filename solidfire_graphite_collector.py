@@ -224,7 +224,7 @@ with daemon.DaemonContext():
     # Logger module configuration
     if (args.logfile):
         LOG = logging.getLogger('solidfire_graphite_collector.py')
-        logging.basicConfig(filename=args.logfile,level=logging.DEBUG)
+        logging.basicConfig(filename=args.logfile,level=logging.DEBUG,format='%(asctime)s %(message)s')
         LOG.warning("Starting Collector script as a daemon.  No console output possible.")
 
     # Initialize graphyte sender
