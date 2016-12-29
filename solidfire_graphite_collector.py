@@ -124,8 +124,9 @@ def send_volume_stats(sf_element_factory, prefix):
     for vs_dict in volstats:
         vol_name = volinfo_by_id[vs_dict['volumeID']]['name']
         vol_accountID = volinfo_by_id[vs_dict['volumeID']]['accountID']
-        for key in metrics_list:
-            graphyte.send(prefix + '.accountID.' + str(vol_accountID) + \
+        vol_accountName = sf_element_factory.get_account_by_id(vol_accountID).to_json()['account']['username']
+	for key in metrics_list:
+            graphyte.send(prefix + '.accountID.' + str(vol_accountName) + \
                     '.volume.' + vol_name + '.' + key, to_num(vs_dict[key]))
 
 
