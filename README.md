@@ -1,22 +1,22 @@
+solidfire-graphite-collector
+=============================
+
+Project to collect and store SolidFire cluster metrics in Graphite.  
+
+
 # solidfire-graphite-collector
-
-Daemon to collect performance metrics from a SolidFire cluster and send 
-them to Graphite.
-
 
 Current Release
 ---------------
 
-Version 1.0.4
+Version 1.0.5
 
 
 Description
 -----------
 
 The SolidFire Graphite collector is a simple utility to collect metrics 
-from Element OS 8.x and store them in graphite.   The dashboards directory
-contains a set of sample Grafana dashboards utilizing the collected metrics.
-
+from Element OS 8.x and store them in graphite.   
 
 Required Libraries
 ------------------
@@ -39,7 +39,7 @@ cluster to monitor.
 
 
     usage: python solidfire_graphite_collector.py [-h] [-s SOLIDFIRE] [-u USERNAME]
-                                           [-p PASSWORD] [-g GRAPHITE] [-t PORT]
+                 [-p PASSWORD] [-g GRAPHITE] [-t PORT] [-m METRICROOT] [-l LOGFILE]
 
       -h, --help            show this help message and exit
 
@@ -73,13 +73,18 @@ To stop this script, simply kill the process.  A sample command to do so is show
     | xargs kill
 
 
-**launcher.py**
----------------
+Other Scripts
+===============
+
+#launcher.py 
 
 Current Release
 ---------------
 
 Version 1.0.1
+
+Description
+-----------
 
 Helper script to use a configuration file to provide arguments for launching multiple 
 instances of solidfire_graphite_collector.py at once.
@@ -99,6 +104,13 @@ Requires a configuration file (sgc.config) with one or more sections in the form
         metricroot : netapp.solidfire.cluster
 
 Where graphite and port are optional.
+
+#dashboards/*
+
+Description
+-----------
+The dashboards directorycontains a set of sample Grafana dashboards 
+utilizing the collected metrics.
 
 
 
