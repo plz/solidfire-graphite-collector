@@ -1,9 +1,9 @@
 #!/usr/bin/python
 # solidfire_graphite_collector.py
 #
-# Version 1.0.4
+# Version 1.0.5
 # Author: Colin Bieberstein
-# Contributors: Pablo Luis Zorzoli
+# Contributors: Pablo Luis Zorzoli, Davide Obbi
 #
 # Copyright &copy; 2016 NetApp, Inc. All Rights Reserved.
 #
