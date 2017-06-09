@@ -1,9 +1,11 @@
 #!/usr/bin/python
 # solidfire_graphite_collector.py
 #
-# Version 1.0.4
+# Version 1.0.5
 # Author: Colin Bieberstein
 # Contributors: Pablo Luis Zorzoli
+#
+# 1.0.5 = added debug mode, intead of specifying the graphite server, you can specify 'debug' and the script will send the metrixs to the log file
 #
 # Copyright &copy; 2016 NetApp, Inc. All Rights Reserved.
 #
@@ -35,9 +37,15 @@ def send_cluster_stats(sf_element_factory, prefix):
 
     cluster_stats_dict = sf_element_factory.get_cluster_stats().to_json()['clusterStats']
     for key in metrics:
-        graphyte.send(prefix + '.' + key, to_num(cluster_stats_dict[key]))
+        if to_graphite:
+            graphyte.send(prefix + '.' + key, to_num(cluster_stats_dict[key]))
+        else:
+            LOG.warning(key + ' ' +  str(cluster_stats_dict[key]))
     for key in monotonic:
-        graphyte.send(prefix + '.' + key, to_num(cluster_stats_dict[key]))
+        if to_graphite:
+            graphyte.send(prefix + '.' + key, to_num(cluster_stats_dict[key]))
+        else:
+            LOG.warning(key + ' ' + str(cluster_stats_dict[key]))
         # Monotonically increasing counters split out so that we can later convert
         # these to a rate and submit that rate as well.  Less work to display on
         # Grafana dashboards.    Add code for t2 - t1 here.
@@ -58,7 +66,10 @@ def send_cluster_capacity(sf_element_factory, prefix):
 
     result = sf_element_factory.get_cluster_capacity().to_json()['clusterCapacity']
     for key in metrics:
-        graphyte.send(prefix + '.' + key, to_num(result[key]))
+        if to_graphite:
+            graphyte.send(prefix + '.' + key, to_num(result[key]))
+        else:
+            LOG.warning(key + ' ' + str(result[key]))
 
     # Calculate & send derived metrics
     non_zero_blocks = to_num(result['nonZeroBlocks'])
@@ -69,23 +80,33 @@ def send_cluster_capacity(sf_element_factory, prefix):
         thin_factor = (non_zero_blocks + zero_blocks) / non_zero_blocks
     else:
         thin_factor = 1
-    graphyte.send(prefix + '.thin_factor', thin_factor)
+    if to_graphite:
+        graphyte.send(prefix + '.thin_factor', thin_factor)
+    else:
+        LOG.warning(key + ' ' +  str(result[key]))
 
     if unique_blocks != 0:
         dedupe_factor =  non_zero_blocks / unique_blocks
     else:
         dedupe_factor = 1
-    graphyte.send(prefix + '.dedupe_factor', dedupe_factor)
-
+    if to_graphite:
+        graphyte.send(prefix + '.dedupe_factor', dedupe_factor)
+    else:
+        LOG.warning('dedupe_factor ' + str(dedupe_factor))
     if unique_blocks_used_space != 0:
         compression_factor= (unique_blocks * 4096) / unique_blocks_used_space
     else:
         compression_factor = 1
-    graphyte.send(prefix + '.compression_factor', compression_factor)
+    if to_graphite:
+        graphyte.send(prefix + '.compression_factor', compression_factor)
+    else:
+        LOG.warning('compression_factor ' + str(compression_factor))
 
     efficiency_factor = thin_factor * dedupe_factor * compression_factor
-    graphyte.send(prefix + '.efficiency_factor', efficiency_factor)
-
+    if to_graphite:
+        graphyte.send(prefix + '.efficiency_factor', efficiency_factor)
+    else:
+        LOG.warning('efficiency_factor ' + str(efficiency_factor))
 
 def send_node_stats(sf_element_factory, prefix):
     """
@@ -103,8 +124,10 @@ def send_node_stats(sf_element_factory, prefix):
     for ns_dict in nodestats:
         node_name = nodeinfo_by_id[ns_dict['nodeID']]['name']
         for key in metrics_list:
-            graphyte.send(prefix + '.' + node_name + '.' + key, to_num(ns_dict[key]))
-
+            if to_graphite:
+                graphyte.send(prefix + '.' + node_name + '.' + key, to_num(ns_dict[key]))
+            else:
+                LOG.warning(node_name + ' ' + key + ' ' + str(ns_dict[key]))
 
 def send_volume_stats(sf_element_factory, prefix):
     """
@@ -126,9 +149,12 @@ def send_volume_stats(sf_element_factory, prefix):
         vol_accountID = volinfo_by_id[vs_dict['volumeID']]['accountID']
         vol_accountName = sf_element_factory.get_account_by_id(vol_accountID).to_json()['account']['username']
 	for key in metrics_list:
-            graphyte.send(prefix + '.accountID.' + str(vol_accountName) + \
-                    '.volume.' + vol_name + '.' + key, to_num(vs_dict[key]))
-
+            if to_graphite:
+                graphyte.send(prefix + '.accountID.' + str(vol_accountName) + \
+                        '.volume.' + vol_name + '.' + key, to_num(vs_dict[key]))
+            else:
+                LOG.warning('accountID ' + str(vol_accountName) + \
+                        ' volume ' + vol_name + ' ' + key + ' ' + str(vs_dict[key]))
 
 def send_drive_stats(sf_element_factory, prefix):
     """
@@ -140,11 +166,16 @@ def send_drive_stats(sf_element_factory, prefix):
     drive_list = sf_element_factory.list_drives().to_json()['drives']
     for status in ['active','available','erasing','failed','removing']:
         value = count_if(drive_list, 'status', status)
-        graphyte.send(prefix + '.drives.status.' + status, value)
+        if to_graphite:
+            graphyte.send(prefix + '.drives.status.' + status, value)
+        else:
+            LOG.warning('drives.status ' + status + ' ' + str(value))
     for type in ['volume','block','unknown']:
         value = count_if(drive_list, 'type', type)
-        graphyte.send(prefix + '.drives.type.' + type, value)
-
+        if to_graphite:
+            graphyte.send(prefix + '.drives.type.' + type, value)
+        else:
+            LOG.warning('drives.type ' + type + ' ' + str(value))
     # Node level stats
     node_list = sf_element_factory.list_all_nodes().to_json()['nodes']
     nodeinfo_by_id = list_to_dict(node_list, key="nodeID")
@@ -152,12 +183,16 @@ def send_drive_stats(sf_element_factory, prefix):
         node_name = nodeinfo_by_id[node]['name']
         for status in ['active','available','erasing','failed','removing']:
             value = count_ifs(drive_list, 'status', status, 'nodeID',node)
-            graphyte.send(prefix+'.node.'+node_name+'.drives.status.'+status, value)
+            if to_graphite:
+                graphyte.send(prefix+'.node.'+node_name+'.drives.status.'+status, value)
+            else:
+                LOG.warning('node ' + node_name + ' drives.status ' + status + ' ' + str(value))
         for drive_type in ['volume','block','unknown']:
             value = count_ifs(drive_list, 'type', drive_type, 'nodeID',node)
-            graphyte.send(prefix+'.node.'+node_name+'.drives.type.'+drive_type, value)
-
-
+            if to_graphite:
+                graphyte.send(prefix+'.node.'+node_name+'.drives.type.'+drive_type, value)
+            else:
+                LOG.warning('node ' + node_name + ' drives.type ' + drive_type + ' ' + str(value))
 
 def list_to_dict(list_of_dicts, key):
     """
@@ -210,9 +245,9 @@ parser.add_argument('-u', '--username', default='admin',
 parser.add_argument('-p', '--password', default='password',
     help='password for SolidFire array. default password')
 parser.add_argument('-g', '--graphite', default='localhost',
-    help='hostname of Graphite server to send to. default localhost')
+    help='hostname of Graphite server to send to. default localhost. is set to debug will send metrics to logfile')
 parser.add_argument('-t', '--port', type=int, default=2003,
-    help='port to send message to. default 2003')
+    help='port to send message to. default 2003. if the --graphite is set to debug can be omitted')
 parser.add_argument('-m', '--metricroot', default='netapp.solidfire.cluster',
     help='graphite metric root. default netapp.solidfire.cluster')
 parser.add_argument('-l', '--logfile', default='/tmp/solidfire-graphite-collector.log',
@@ -228,7 +263,11 @@ with daemon.DaemonContext():
         LOG.warning("Starting Collector script as a daemon.  No console output possible.")
 
     # Initialize graphyte sender
-    graphyte.init(args.graphite, port=args.port, prefix=args.metricroot)
+    if args.graphite == "debug":
+        LOG.warning("Starting collector in debug mode. All the metrics will be shipped to logfile")
+        to_graphite= False
+    else:
+        graphyte.init(args.graphite, port=args.port, prefix=args.metricroot)
 
     # Loop only at 1 minute intervals from start time.
     starttime=time.time()
