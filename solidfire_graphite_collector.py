@@ -25,6 +25,7 @@ import daemon
 from solidfire.factory import ElementFactory
 import solidfire.common
 import logging
+import string
 
 def send_cluster_stats(sf_element_factory, prefix):
     """
@@ -109,7 +110,7 @@ def send_node_stats(sf_element_factory, prefix):
 def send_volume_stats(sf_element_factory, prefix):
     """
     send a subset of ListVolumeStatsByVolume results to graphite.
-    Note: Calls ListViolumes to get volume names for use in metric path.
+    Note: Calls ListVolumes to get volume names for use in metric path.
     """
     metrics_list = ['volumeSize','zeroBlocks','nonZeroBlocks','volumeUtilization',
                     'actualIOPS','averageIOPSize', 'throttle','burstIOPSCredit',
@@ -125,6 +126,9 @@ def send_volume_stats(sf_element_factory, prefix):
         vol_name = volinfo_by_id[vs_dict['volumeID']]['name']
         vol_accountID = volinfo_by_id[vs_dict['volumeID']]['accountID']
         vol_accountName = sf_element_factory.get_account_by_id(vol_accountID).to_json()['account']['username']
+        # if account has a dot, trim it, cause it will conflict with graphite metrics structure.
+        vol_accountName = vol_accountName.replace('.','')
+
 	for key in metrics_list:
             graphyte.send(prefix + '.accountID.' + str(vol_accountName) + \
                     '.volume.' + vol_name + '.' + key, to_num(vs_dict[key]))
@@ -206,7 +210,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-s', '--solidfire',
     help='hostname of SolidFire array from which metrics should be collected')
 parser.add_argument('-u', '--username', default='admin',
-    help='username for SolidFire arrayi. default admin')
+    help='username for SolidFire array. default admin')
 parser.add_argument('-p', '--password', default='password',
     help='password for SolidFire array. default password')
 parser.add_argument('-g', '--graphite', default='localhost',
