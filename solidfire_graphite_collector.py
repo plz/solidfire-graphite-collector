@@ -221,18 +221,32 @@ parser.add_argument('-m', '--metricroot', default='netapp.solidfire.cluster',
     help='graphite metric root. default netapp.solidfire.cluster')
 parser.add_argument('-l', '--logfile', default='/tmp/solidfire-graphite-collector.log',
     help='logfile. default: /tmp/solidfire-graphite-collector.log')
+parser.add_argument('-d', '--debug', default='ERROR',
+            help='set debug Level for Logging library. default Error')
 args = parser.parse_args()
+
+if ( args.debug != 'CRITICAL' and
+     args.debug != 'ERROR' and
+     args.debug != 'WARNING' and
+     args.debug != 'INFO' and
+     args.debug != 'DEBUG' ):
+     print 'debug level %s is not valid!' % args.debug
+     sys.exit(1)
 
 # Run this script as a daemon
 with daemon.DaemonContext():
     # Logger module configuration
     if (args.logfile):
         LOG = logging.getLogger('solidfire_graphite_collector.py')
-        logging.basicConfig(filename=args.logfile,level=logging.DEBUG,format='%(asctime)s %(message)s')
+        logging.basicConfig(filename=args.logfile,level=args.debug,format='%(asctime)s %(message)s')
         LOG.warning("Starting Collector script as a daemon.  No console output possible.")
 
     # Initialize graphyte sender
     graphyte.init(args.graphite, port=args.port, prefix=args.metricroot)
+
+    # Apply the same logging level to the underlying libs.
+    solidfire.common.setLogLevel(args.debug)
+    logging.getLogger('requests').setLevel(args.debug)
 
     # Loop only at 1 minute intervals from start time.
     starttime=time.time()

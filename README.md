@@ -39,7 +39,7 @@ cluster to monitor.
 
 
     usage: python solidfire_graphite_collector.py [-h] [-s SOLIDFIRE] [-u USERNAME]
-                 [-p PASSWORD] [-g GRAPHITE] [-t PORT] [-m METRICROOT] [-l LOGFILE]
+                 [-p PASSWORD] [-g GRAPHITE] [-t PORT] [-m METRICROOT] [-l LOGFILE] [-d debuglevel]
 
       -h, --help            show this help message and exit
 
@@ -61,6 +61,8 @@ cluster to monitor.
       -m METRICROOT, --metricroot METRICROOT  port to send message to.  default netapp.solidfire.cluster
 
       -l LOGFILE, --logfile LOGFILE  if defined, execution will be logged to this file.
+
+      -d DEBUGLEVEL To Manipulate Logging Level setting.
 
 
 
